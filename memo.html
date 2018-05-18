@@ -4,12 +4,37 @@
     <meta charset="UTF-8">
     <title>memo</title>
     <style>
+        html {
+            height : 100%
+        }
         body {
             background-color: #feff9c;
+            cursor: text;
+            height: 100%;
+            margin: 0;
+        }
+        textarea {
+            width: 98%;
+            border:0;
+            resize:none;
+            background-color : #feff9c;
+        }
+        textarea:focus {
+            outline: 0;
         }
     </style>
 </head>
 <body>
+<textarea id="note">
 
+</textarea>
+<script>
+    //click anywhere will be focus textarea
+    document.querySelector('body').addEventListener('click', () => {
+        console.log("body click")
+        document.querySelector('#note').focus()
+
+    })
+</script>
 </body>
 </html>
