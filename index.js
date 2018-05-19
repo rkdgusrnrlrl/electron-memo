@@ -1,5 +1,8 @@
 const {app, BrowserWindow} = require('electron')
 
+// hot loader config
+require('electron-reload')(__dirname)
+
 app.on('ready', () => {
 	const win = new BrowserWindow({
 		frame: false,
