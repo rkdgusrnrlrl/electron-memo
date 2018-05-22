@@ -11,4 +11,7 @@ app.on('ready', () => {
 
 	win.setMenu(null)
 	win.loadFile('./memo.html')
+
+	// opem devtool
+	// win.webContents.openDevTools()
 })
