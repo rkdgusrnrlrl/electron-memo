@@ -5,9 +5,10 @@ require('electron-reload')(__dirname)
 
 app.on('ready', () => {
 	const win = new BrowserWindow({
-		frame: false,
 		width: 400,
 		height: 400
 	})
+
+	win.setMenu(null)
 	win.loadFile('./memo.html')
 })
