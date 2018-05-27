@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, Tray} = require('electron')
 
 // hot loader config
 require('electron-reload')(__dirname)
@@ -12,6 +12,8 @@ app.on('ready', () => {
 	win.setMenu(null)
 	win.loadFile('./memo.html')
 
+	const trayIcon = new Tray('sticky-note.png')
+	console.log(trayIcon)
 	// opem devtool
 	// win.webContents.openDevTools()
 })
