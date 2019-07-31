@@ -27,13 +27,22 @@
     </style>
 </head>
 <body>
-<textarea id="note">
-
-</textarea>
+<textarea id="note" class="mousetrap"></textarea>
+<script src="script/mousetrap.min.js"></script>
 <script>
-    //click anywhere will be focus textarea
+	const {ipcRenderer} = require('electron')
+	const id = require('electron').remote.getCurrentWindow().id
+
+	Mousetrap.bind(['command+s', 'ctrl+s'], function() {
+		console.log('save file')
+		const memo = document.querySelector('#note').value
+		ipcRenderer.send('save-memo', {id: id, memo: memo})
+		return false
+	})
+
     document.querySelector('body').addEventListener('click', () => {
         document.querySelector('#note').focus()
+        console.log('click')
     })
 </script>
 </body>

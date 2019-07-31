@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-const { app, BrowserWindow, Tray, Menu, globalShortcut } = require('electron')
+const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain } = require('electron')
 
 // hot loader config
 require('electron-reload')(__dirname)
@@ -7,24 +7,36 @@ require('electron-reload')(__dirname)
 function newNote () {
 	const newWin = new BrowserWindow({
 		width: 400,
-		height: 400
+		height: 400,
+		webPreferences: {
+			nodeIntegration: true
+		}
 	})
-
+	const lastId = newWin.id
+	data.push({
+		id: lastId,
+		memo: ''
+	})
 	newWin.setMenu(null)
 	newWin.loadFile('./memo.html')
+	// open devtool
+	newWin.webContents.openDevTools()
 }
 
-app.on('ready', () => {
-	const win = new BrowserWindow({
-		width: 400,
-		height: 400
-	})
+const data = []
 
-	win.setMenu(null)
-	win.loadFile('./memo.html')
+ipcMain.on('save-memo', (e, arg) => {
+	const ii = data.findIndex((el) => {
+		return el.id === arg.id
+	})
+	data[ii] = arg
+	console.log(data)
+})
+
+app.on('ready', () => {
+	newNote()
 
 	const trayIcon = new Tray('sticky-note.png')
-	console.log(trayIcon)
 
 	const contextMenu = Menu.buildFromTemplate([
 		{
@@ -40,7 +52,4 @@ app.on('ready', () => {
 	globalShortcut.register('Control+Shift+n', () => {
 		newNote()
 	})
-
-	// opem devtool
-	// win.webContents.openDevTools()
 })
