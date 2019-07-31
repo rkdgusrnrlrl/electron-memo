@@ -1,17 +1,17 @@
 /* eslint-disable indent */
-const {app, BrowserWindow, Tray, Menu, globalShortcut} = require('electron')
+const { app, BrowserWindow, Tray, Menu, globalShortcut } = require('electron')
 
 // hot loader config
 require('electron-reload')(__dirname)
 
 function newNote () {
-    let newWin = new BrowserWindow({
-        width: 400,
-        height: 400
-    })
+	const newWin = new BrowserWindow({
+		width: 400,
+		height: 400
+	})
 
-    newWin.setMenu(null)
-    newWin.loadFile('./memo.html')
+	newWin.setMenu(null)
+	newWin.loadFile('./memo.html')
 }
 
 app.on('ready', () => {
@@ -30,8 +30,8 @@ app.on('ready', () => {
 		{
 			label: 'new note',
 			click: () => {
-                newNote()
-            }
+				newNote()
+			}
 		}
 	])
 
