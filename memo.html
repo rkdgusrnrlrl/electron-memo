@@ -34,8 +34,7 @@
 	const id = require('electron').remote.getCurrentWindow().id
 
 	Mousetrap.bind(['command+s', 'ctrl+s'], function() {
-		console.log('save file')
-		const memo = document.querySelector('#note').value
+1		const memo = document.querySelector('#note').value
 		ipcRenderer.send('save-memo', {id: id, memo: memo})
 		return false
 	})
