@@ -9,7 +9,8 @@ function newNote () {
 		width: 400,
 		height: 400,
 		webPreferences: {
-			nodeIntegration: true
+			nodeIntegration: true,
+			backgroundThrottling: false
 		}
 	})
 	const lastId = newWin.id
@@ -24,6 +25,7 @@ function newNote () {
 }
 
 const data = []
+let trayIcon = null
 
 ipcMain.on('save-memo', (e, arg) => {
 	const ii = data.findIndex((el) => {
@@ -34,9 +36,9 @@ ipcMain.on('save-memo', (e, arg) => {
 })
 
 app.on('ready', () => {
-	newNote()
+	// newNote()
 
-	const trayIcon = new Tray('sticky-note.png')
+	trayIcon = new Tray('sticky-note.png')
 
 	const contextMenu = Menu.buildFromTemplate([
 		{
