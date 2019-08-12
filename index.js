@@ -1,5 +1,7 @@
 /* eslint-disable indent */
 const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain } = require('electron')
+const Dropbox = require('dropbox').Dropbox
+const dbx = new Dropbox({ accessToken: 'accessToken', fetch: require('isomorphic-fetch') })
 
 // hot loader config
 require('electron-reload')(__dirname)
@@ -32,6 +34,13 @@ ipcMain.on('save-memo', (e, arg) => {
 		return el.id === arg.id
 	})
 	data[ii] = arg
+	dbx.filesUpload({ path: '/note', contents: arg.memo })
+		.then((response) => {
+			console.log(response)
+		})
+		.catch((error) => {
+			console.error(error)
+		})
 	console.log(data)
 })
 
