@@ -1,5 +1,7 @@
 /* eslint-disable indent */
 const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain } = require('electron')
+const Dropbox = require('dropbox').Dropbox
+const dbx = new Dropbox({ accessToken: 'accessToken', fetch: require('isomorphic-fetch') })
 
 // hot loader config
 require('electron-reload')(__dirname)
@@ -21,23 +23,32 @@ function newNote () {
 	newWin.setMenu(null)
 	newWin.loadFile('./memo.html')
 	// open devtool
-	newWin.webContents.openDevTools()
+	// newWin.webContents.openDevTools()
 }
 
 const data = []
 let trayIcon = null
 
-ipcMain.on('save-memo', (e, arg) => {
+async function saveNote (memo) {
 	const ii = data.findIndex((el) => {
-		return el.id === arg.id
+		return el.id === memo.id
 	})
-	data[ii] = arg
+	data[ii] = memo
+	await dbx.filesUpload({ path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite' })
+		.then((response) => {
+			console.log(response)
+		})
+		.catch((error) => {
+			console.log(error.error.error)
+		})
+}
+
+ipcMain.on('save-memo', async (e, arg) => {
+	await saveNote(arg)
 	console.log(data)
 })
 
 app.on('ready', () => {
-	// newNote()
-
 	trayIcon = new Tray('sticky-note.png')
 
 	const contextMenu = Menu.buildFromTemplate([
