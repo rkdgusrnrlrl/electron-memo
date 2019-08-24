@@ -23,30 +23,32 @@ function newNote () {
 	newWin.setMenu(null)
 	newWin.loadFile('./memo.html')
 	// open devtool
-	newWin.webContents.openDevTools()
+	// newWin.webContents.openDevTools()
 }
 
 const data = []
 let trayIcon = null
 
-ipcMain.on('save-memo', (e, arg) => {
+async function saveNote (memo) {
 	const ii = data.findIndex((el) => {
-		return el.id === arg.id
+		return el.id === memo.id
 	})
-	data[ii] = arg
-	dbx.filesUpload({ path: '/note', contents: arg.memo })
+	data[ii] = memo
+	await dbx.filesUpload({ path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite' })
 		.then((response) => {
 			console.log(response)
 		})
 		.catch((error) => {
-			console.error(error)
+			console.log(error.error.error)
 		})
+}
+
+ipcMain.on('save-memo', async (e, arg) => {
+	await saveNote(arg)
 	console.log(data)
 })
 
 app.on('ready', () => {
-	// newNote()
-
 	trayIcon = new Tray('sticky-note.png')
 
 	const contextMenu = Menu.buildFromTemplate([
