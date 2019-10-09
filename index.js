@@ -1,7 +1,10 @@
 /* eslint-disable indent */
-const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain } = require('electron')
+const {app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain} = require('electron')
 const Dropbox = require('dropbox').Dropbox
-const dbx = new Dropbox({ accessToken: 'accessToken', fetch: require('isomorphic-fetch') })
+const dbx = new Dropbox({
+	accessToken: '--',
+	fetch: require('isomorphic-fetch')
+})
 
 // hot loader config
 require('electron-reload')(__dirname)
@@ -26,7 +29,41 @@ function newNote () {
 	// newWin.webContents.openDevTools()
 }
 
-const data = []
+async function getNoteList () {
+	try {
+		const res = await dbx.filesListFolder({ path: '' })
+		if (hasOwnProperty.call(res, 'entries')) {
+			const ll = res.entries
+			for (let i = 0; i < ll.length; i++) {
+				console.log(ll[i].name)
+			}
+		}
+	} catch (e) {
+		console.error(e)
+	}
+}
+
+function showMain () {
+	const newWin = new BrowserWindow({
+		width: 400,
+		height: 400,
+		webPreferences: {
+			nodeIntegration: true,
+			backgroundThrottling: false
+		}
+	})
+	const lastId = newWin.id
+	data.push({
+		id: lastId,
+		memo: ''
+	})
+	newWin.setMenu(null)
+	newWin.loadFile('./main.html')
+	// open devtool
+	// newWin.webContents.openDevTools()
+}
+
+let data = []
 let trayIcon = null
 
 async function saveNote (memo) {
@@ -34,7 +71,7 @@ async function saveNote (memo) {
 		return el.id === memo.id
 	})
 	data[ii] = memo
-	await dbx.filesUpload({ path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite' })
+	await dbx.filesUpload({path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite'})
 		.then((response) => {
 			console.log(response)
 		})
@@ -57,10 +94,16 @@ app.on('ready', () => {
 			click: () => {
 				newNote()
 			}
+		},
+		{
+			label: 'main',
+			click: showMain
 		}
 	])
 
 	trayIcon.setContextMenu(contextMenu)
+
+	data = getNoteList()
 
 	globalShortcut.register('Control+Shift+n', () => {
 		newNote()
