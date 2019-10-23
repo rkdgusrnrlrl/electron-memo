@@ -1,11 +1,12 @@
 /* eslint-disable indent */
-const {app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain} = require('electron')
+const { app, BrowserWindow, Tray, Menu, globalShortcut, ipcMain } = require('electron')
 const Dropbox = require('dropbox').Dropbox
 const dbx = new Dropbox({
 	accessToken: '--',
 	fetch: require('isomorphic-fetch')
 })
-
+const data = []
+let trayIcon = null
 // hot loader config
 require('electron-reload')(__dirname)
 
@@ -34,9 +35,7 @@ async function getNoteList () {
 		const res = await dbx.filesListFolder({ path: '' })
 		if (hasOwnProperty.call(res, 'entries')) {
 			const ll = res.entries
-			for (let i = 0; i < ll.length; i++) {
-				console.log(ll[i].name)
-			}
+			return ll.map(l => l.name)
 		}
 	} catch (e) {
 		console.error(e)
@@ -52,26 +51,16 @@ function showMain () {
 			backgroundThrottling: false
 		}
 	})
-	const lastId = newWin.id
-	data.push({
-		id: lastId,
-		memo: ''
-	})
 	newWin.setMenu(null)
 	newWin.loadFile('./main.html')
-	// open devtool
-	// newWin.webContents.openDevTools()
 }
-
-let data = []
-let trayIcon = null
 
 async function saveNote (memo) {
 	const ii = data.findIndex((el) => {
 		return el.id === memo.id
 	})
 	data[ii] = memo
-	await dbx.filesUpload({path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite'})
+	await dbx.filesUpload({ path: `/${memo.id}`, contents: memo.memo, mode: 'overwrite' })
 		.then((response) => {
 			console.log(response)
 		})
@@ -83,6 +72,10 @@ async function saveNote (memo) {
 ipcMain.on('save-memo', async (e, arg) => {
 	await saveNote(arg)
 	console.log(data)
+})
+
+ipcMain.on('get-note-list', async (event) => {
+	event.returnValue = await getNoteList()
 })
 
 app.on('ready', () => {
@@ -102,8 +95,6 @@ app.on('ready', () => {
 	])
 
 	trayIcon.setContextMenu(contextMenu)
-
-	data = getNoteList()
 
 	globalShortcut.register('Control+Shift+n', () => {
 		newNote()

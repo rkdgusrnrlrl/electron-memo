@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>memo</title>
+    <style>
+        html {
+            height : 100%
+        }
+        body {
+            background-color: #feff9c;
+            cursor: text;
+            height: 100%;
+            margin: 0;
+        }
+        textarea {
+            width: 98%;
+            height: 98%;
+            border:0;
+            resize:none;
+            background-color : #feff9c;
+            font-size: 20px;
+        }
+        textarea:focus {
+            outline: 0;
+        }
+    </style>
+</head>
+<body>
+<ul id="note-list"></ul>
+<script src="script/mousetrap.min.js"></script>
+<script>
+	const {ipcRenderer} = require('electron')
+	const id = require('electron').remote.getCurrentWindow().id
+    document.querySelector('body').addEventListener('click', () => {
+        document.querySelector('#note').focus()
+        console.log('click')
+    })
+
+	const notes = ipcRenderer.sendSync('get-note-list')
+    let elUl = document.createElement('ul')
+    notes.forEach(note => {
+    	const elLi = document.createElement('li')
+        elLi.textContent = note
+        elUl.append(elLi)
+    })
+    document.querySelector('#note-list').append(elUl)
+</script>
+</body>
+</html>
